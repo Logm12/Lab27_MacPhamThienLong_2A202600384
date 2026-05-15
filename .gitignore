@@ -26,4 +26,13 @@ Thumbs.db
 # Local audit DB exports / scratch
 *.sqlite
 *.db
+*.db.backup
 scratch/
+
+# Lab local resources / clones
+antigravity-awesome-skills/
+package/
+vibecodekit-main/
+*.tgz
+.mypy_cache/
+.ruff_cache/

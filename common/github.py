@@ -33,6 +33,15 @@ class PullRequest:
 
 
 def _token() -> str:
+    # Isolated token lookup favoring secure Session State over persistent OS Environment
+    try:
+        import streamlit as st
+        if "github_token" in st.session_state and st.session_state["github_token"]:
+            return st.session_state["github_token"]
+    except (ImportError, RuntimeError):
+        # Fallback if outside streamlit lifecycle
+        pass
+
     tok = os.environ.get("GITHUB_TOKEN")
     if not tok:
         raise RuntimeError(
@@ -107,3 +116,29 @@ def post_review_comment(pr_url: str, body: str) -> None:
     with httpx.Client(timeout=30.0) as client:
         resp = client.post(url, headers=_headers(), json={"body": body})
         resp.raise_for_status()
+
+
+def check_write_permission(pr_url: str) -> tuple[bool, str]:
+    """Validate that the active token contains valid OAuth write scopes for commenting.
+    
+    Returns a tuple: (is_valid: bool, diagnostic_message: str)
+    """
+    try:
+        owner, repo, _ = parse_pr_url(pr_url)
+        url = f"{API}/repos/{owner}/{repo}"
+        with httpx.Client(timeout=15.0) as client:
+            resp = client.get(url, headers=_headers())
+            resp.raise_for_status()
+            
+            # Inspect exact granted scopes returned via Github headers
+            scopes_str = resp.headers.get("X-OAuth-Scopes", "")
+            scopes = [s.strip() for s in scopes_str.split(",") if s.strip()]
+            
+            # To write comments to a public repo, either 'repo' or 'public_repo' is required
+            has_scope = any(s in scopes for s in ["repo", "public_repo"])
+            if not has_scope:
+                return False, f"Missing write scope! Token scopes: [{scopes_str or 'none'}]. Required: 'public_repo' or 'repo'."
+                
+            return True, "Permission pre-flight: Success!"
+    except Exception as e:
+        return False, f"Pre-flight verification error: {str(e)}"

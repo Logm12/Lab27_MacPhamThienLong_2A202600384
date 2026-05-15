@@ -17,7 +17,7 @@ import asyncio
 from rich.console import Console
 from rich.table import Table
 
-from common.db import db_conn, replay_events
+from common.database import db_conn, replay_events
 
 
 RISK_COLOR = {"low": "green", "med": "yellow", "high": "red"}
