@@ -1,3 +1,4 @@
+# Mạc Phạm Thiên Long - 2A202600384
 # HITL PR Review Agent Pro
 
 HITL PR Review Agent Pro is an advanced Human-in-the-Loop (HITL) pull request analysis platform built on LangGraph and Streamlit. The system automates code reviews by triaging PR risk using dynamic confidence-based routing, enforcing manual gatekeeping for moderate risks, escalating critical queries for high-risk code, and compiling historical telemetry into a structured analytical dashboard.
@@ -138,4 +139,4 @@ Standardized QA scripts are located in the `tests/` directory, validating strict
 
 ## License
 
-This project is licensed under the terms specified in the course assignment structure. Distributed for academic and enterprise lab review purposes.
+MIT
